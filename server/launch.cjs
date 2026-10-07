@@ -17,6 +17,8 @@ const ai = require('./ai.cjs')
 function registerLaunch({ app, db, auth, pushToUser, hashPassword }) {
   const isProduction = process.env.NODE_ENV === 'production'
   const APP_URL = (process.env.APP_URL || 'http://localhost:5173').replace(/\/$/, '')
+    const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').trim().toLowerCase()
+  
   const emailEnabled = Boolean(process.env.SMTP_HOST || process.env.RESEND_API_KEY)
   const nowIso = () => new Date().toISOString()
   const sha = (v) => crypto.createHash('sha256').update(String(v)).digest('hex')
@@ -39,7 +41,13 @@ function registerLaunch({ app, db, auth, pushToUser, hashPassword }) {
   addColumn('users', 'email_verified', 'INTEGER NOT NULL DEFAULT 1')
   addColumn('mentor_sessions', 'slot_id', 'INTEGER')
   addColumn('mentor_profiles', 'review_note', "TEXT NOT NULL DEFAULT ''")
+  if (ADMIN_EMAIL) {
+    const result = db.prepare(
+      "UPDATE users SET role='admin' WHERE lower(email)=?"
+    ).run(ADMIN_EMAIL)
 
+    console.log(`[admin] ${ADMIN_EMAIL}: ${result.changes ? 'promoted to admin' : 'user not found yet'}`)
+  }
   db.exec(`
     CREATE TABLE IF NOT EXISTS email_tokens (
       token_hash TEXT PRIMARY KEY,
