@@ -1,0 +1,35 @@
+{
+  "name": "careerready",
+  "private": true,
+  "version": "4.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server/server.cjs",
+    "dev:full": "concurrently -n server,web -c blue,green \"npm run server\" \"npm run dev\"",
+    "build": "vite build",
+    "start": "node server/server.cjs",
+    "preview": "vite preview",
+    "check": "node --check server/server.cjs && node --check server/launch.cjs && node --check server/env.cjs && node --check server/database.cjs && node --check server/extras.cjs && node --check server/production-integrations.cjs && node --check server/promote-admin.cjs && node --check server/ai.cjs",
+    "promote-admin": "node server/promote-admin.cjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "nodemailer": "^6.9.14"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.0.1",
+    "vite": "^5.4.8"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
