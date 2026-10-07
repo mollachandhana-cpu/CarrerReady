@@ -42,20 +42,34 @@ function registerLaunch({ app, db, auth, pushToUser, hashPassword }) {
   addColumn('mentor_sessions', 'slot_id', 'INTEGER')
   addColumn('mentor_profiles', 'review_note', "TEXT NOT NULL DEFAULT ''")
   if (ADMIN_EMAIL) {
-  setTimeout(() => {
-    try {
-      const result = db.prepare(
-        "UPDATE users SET role='admin' WHERE lower(email)=?"
-      ).run(ADMIN_EMAIL)
+    const adminRow = db.prepare('SELECT id, role FROM users WHERE lower(email)=?').get(ADMIN_EMAIL)
+    console.log(`[db] ${db.name} users=${db.prepare('SELECT COUNT(*) n FROM users').get().n}`)
+    if (adminRow && adminRow.role !== 'admin') db.prepare("UPDATE users SET role='admin' WHERE id=?").run(adminRow.id)
+    console.log(`[admin] ${ADMIN_EMAIL}: ${adminRow ? (adminRow.role === 'admin' ? 'already admin' : 'promoted to admin') : 'account not in this database yet; it will be promoted on its first authenticated request'}`)
 
-      console.log(
-        `[admin] ${ADMIN_EMAIL}: ${result.changes ? 'promoted to admin' : 'user not found'}`
-      )
-    } catch (err) {
-      console.error('[admin] promotion failed:', err)
-    }
-  }, 2000)
-}
+    // The account can appear after boot (fresh/empty DB, or it signs up later), so also promote it,
+    // deterministically, the first time its own valid, verified, active session is used.
+    let adminSettled = false
+    const adminSessionUser = db.prepare(
+      `SELECT u.id, u.role FROM sessions s JOIN users u ON u.id = s.user_id
+       WHERE s.token = ? AND datetime(s.created_at) >= datetime('now','-30 days')
+         AND lower(u.email) = ? AND COALESCE(u.status,'active') = 'active' AND u.email_verified = 1`
+    )
+    app.use('/api', (req, res, next) => {
+      if (!adminSettled) {
+        const token = (req.headers.authorization || '').replace('Bearer ', '')
+        const u = token ? adminSessionUser.get(sha(token), ADMIN_EMAIL) : null
+        if (u) {
+          if (u.role !== 'admin') {
+            db.prepare("UPDATE users SET role='admin' WHERE id=?").run(u.id)
+            console.log(`[admin] ${ADMIN_EMAIL}: promoted to admin on authenticated request`)
+          }
+          adminSettled = true
+        }
+      }
+      next()
+    })
+  }
   db.exec(`
     CREATE TABLE IF NOT EXISTS email_tokens (
       token_hash TEXT PRIMARY KEY,
