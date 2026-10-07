@@ -42,12 +42,20 @@ function registerLaunch({ app, db, auth, pushToUser, hashPassword }) {
   addColumn('mentor_sessions', 'slot_id', 'INTEGER')
   addColumn('mentor_profiles', 'review_note', "TEXT NOT NULL DEFAULT ''")
   if (ADMIN_EMAIL) {
-    const result = db.prepare(
-      "UPDATE users SET role='admin' WHERE lower(email)=?"
-    ).run(ADMIN_EMAIL)
+  setTimeout(() => {
+    try {
+      const result = db.prepare(
+        "UPDATE users SET role='admin' WHERE lower(email)=?"
+      ).run(ADMIN_EMAIL)
 
-    console.log(`[admin] ${ADMIN_EMAIL}: ${result.changes ? 'promoted to admin' : 'user not found yet'}`)
-  }
+      console.log(
+        `[admin] ${ADMIN_EMAIL}: ${result.changes ? 'promoted to admin' : 'user not found'}`
+      )
+    } catch (err) {
+      console.error('[admin] promotion failed:', err)
+    }
+  }, 2000)
+}
   db.exec(`
     CREATE TABLE IF NOT EXISTS email_tokens (
       token_hash TEXT PRIMARY KEY,
