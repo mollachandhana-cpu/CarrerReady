@@ -123,6 +123,7 @@ app.get('/api/events', (req, res) => {
 require('./launch.cjs')({ app, db, auth, pushToUser, hashPassword: hashPasswordAsync }) // first, so its safer routes win
 require('./extras.cjs')({ app, db, auth, pushToUser, broadcast, hashPassword })
 require('./production-integrations.cjs').registerProductionIntegrations({ app, db, auth, pushToUser, broadcast, hashPassword, requireRole: (roles) => roles })
+const remoteBackup = require('./remote-backup.cjs').start(db) // free-tier persistence (no-op unless BACKUP_* env is set)
 
 /* =====================================================
    Live jobs from free public feeds
@@ -729,7 +730,8 @@ function shutdown(signal) {
   shuttingDown = true
   console.log(`[shutdown] ${signal} received, closing...`)
   for (const set of clients.values()) for (const res of set) { try { res.end() } catch {} }
-  server.close(() => {
+  server.close(async () => {
+    try { await remoteBackup.flush() } catch (e) { console.error('[shutdown] remote backup failed:', e.message) }
     try { db.close() } catch (e) { console.error('[shutdown] db close failed:', e.message) }
     process.exit(0)
   })
