@@ -109,7 +109,7 @@ Online payments (Stripe) and Google Calendar sync are not built. `hourly_rate` i
 
 ---
 
-# Launch hardening (v4.1)
+# Launch 
 - Suspended accounts are rejected on every request and on the live-update stream; the stream also honours the 30-day session limit.
 - Session tokens are stored hashed. **All existing logins are signed out once on first deploy.**
 - Password hashing no longer blocks the server (async scrypt).
