@@ -4,7 +4,6 @@
 
 ## 1. Pin-ready summary
 
-**Repository description (one line, for GitHub):**
 > Full-stack career-readiness platform for engineering students: skill assessments, personalised roadmaps, job and internship tracking, resume analysis, verified mentors with booking, and a peer community. React + Express + SQLite.
 
 **Suggested GitHub topics:**
@@ -13,7 +12,7 @@
 **Live site:** https://carrerready.onrender.com
 **Repo:** https://github.com/mollachandhana-cpu/CarrerReady
 
-**30-second pitch:** CareerReady helps engineering students (CSE, ECE, EEE, Mechanical, Civil) find out where they stand and what to do next. A student takes a skills assessment, picks a target role, gets a step-by-step roadmap and a readiness score, tracks applications, matches live jobs, and books sessions with admin-verified mentors. Three roles (student, mentor, admin) share one app with live updates.
+CareerReady helps engineering students (CSE, ECE, EEE, Mechanical, Civil) find out where they stand and what to do next. A student takes a skills assessment, picks a target role, gets a step-by-step roadmap and a readiness score, tracks applications, matches live jobs, and books sessions with admin-verified mentors. Three roles (student, mentor, admin) share one app with live updates.
 
 ---
 
@@ -185,25 +184,7 @@ npm run promote-admin -- you@example.com
 
 ---
 
-## 12. Corrections for your current README
-
-The existing `README.md` has several statements that don't match the code. Worth fixing before people read it:
-
-| README says | Actual |
-|---|---|
-| "JWT-based" authentication | Opaque random session tokens, stored as SHA-256 hashes (no JWT library) |
-| Axios for HTTP | Native `fetch` (`src/api.js`); Axios isn't installed |
-| ESLint in the stack | An `eslint.config.js` exists, but ESLint isn't installed or run |
-| `server.js`, `database.js`, `ai.js` | They are `.cjs` files |
-| `cp server/.env.example server/.env`, `cd server && npm install` | There is no `server/.env.example` or `server/package.json`; one root `package.json` serves both |
-| Node.js v18+ | `engines` requires Node ≥ 20 |
-| "database URI", "Structured Database Layer" | SQLite file, no URI |
-| "Native Language Processing Core" | Optional Gemini/OpenAI API calls |
-| Stray "Use code with caution." lines | Leftover paste artifacts; delete them |
-
----
-
-## 13. Resume and LinkedIn bullets
+## 12. Resume and LinkedIn bullets
 
 - Built **CareerReady**, a full-stack career platform (React 18, Vite, Express, SQLite) with three roles, 28 tables and 75 REST endpoints, deployed on Render with Docker and GitHub Actions CI plus CodeQL.
 - Implemented hand-rolled auth: salted scrypt password hashing, hashed opaque session tokens, role-based access control, per-route rate limiting, CSP and HSTS headers, and an audit log.
